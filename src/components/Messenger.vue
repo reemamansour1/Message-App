@@ -5,29 +5,34 @@ import { useMessageStore } from '@/stores/messageStore.js'
 const emit = defineEmits(['logged-out'])
 const store = useMessageStore()
 
-const loggedInUsername = ref(localStorage.getItem('username') || '')
-// key, value
 //localStorage.getItem(key) returns the value
-const loggedInFirstName = ref(localStorage.getItem('firstName') || '')
-const loggedInLastName = ref(localStorage.getItem('lastName') || '')
+// no need to have ref, users they won't change/switch during the same session.
+const loggedInUsername = localStorage.getItem('username') || ''
+const loggedInFirstName = localStorage.getItem('firstName') || ''
+const loggedInLastName = localStorage.getItem('lastName') || ''
 
+// needs ref because v-model requires reactive data and the value changes as the user types
 const newMessage = ref('')
 
+// here if the new msg is empty, do not add it, otherwise, add it, then reset
 function send() {
   const text = newMessage.value.trim()
   if (!text) return
-  store.addMessage(loggedInUsername.value, loggedInFirstName.value, loggedInLastName.value, text)
+  store.addMessage(loggedInUsername, loggedInFirstName, loggedInLastName, text)
   newMessage.value = ''
 }
 
-function redact(index) {
-  store.redactMessage(index)
+// if i click redact, i will make the isRedacted to true and if it is true, this will make it say sth like it is hidden
+function redact(i) {
+  store.redactMessage(i)
 }
 
-function unredact(index) {
-  store.unredactMessage(index)
+// here if i click unredact, it will go back to the store and then change from true to false. and it will show the msg
+function unredact(i) {
+  store.unredactMessage(i)
 }
 
+// in the logout, after clicking log out, we remove the username, so if i want to change the user it will change and this also switches the isloggedIn to false, so it will take us back to the login page
 function logout() {
   localStorage.removeItem('username')
   localStorage.removeItem('firstName')
@@ -46,8 +51,8 @@ function logout() {
 
     <div class="messages">
       <div
-        v-for="(msg, index) in store.messages"
-        :key="index"
+        v-for="(msg, i) in store.messages"
+        :key="i"
         class="row"
         :class="msg.username === loggedInUsername ? 'align-right' : 'align-left'"
       >
@@ -63,8 +68,8 @@ function logout() {
             <span v-else>{{ msg.message }}</span>
           </div>
           <div v-if="msg.username === loggedInUsername">
-            <button v-if="!msg.isRedacted" class="btn-redact" @click="redact(index)">Redact</button>
-            <button v-else class="btn-unredact" @click="unredact(index)">Unredact</button>
+            <button v-if="!msg.isRedacted" class="btn-redact" @click="redact(i)">Redact</button>
+            <button v-else class="btn-unredact" @click="unredact(i)">Unredact</button>
           </div>
         </div>
       </div>
@@ -170,6 +175,7 @@ function logout() {
   background: white;
   border-top: 1px solid #e0e0e0;
 }
+
 .btn-redact {
   font-size: 0.75rem;
   padding: 3px 10px;
@@ -189,6 +195,7 @@ function logout() {
   background: #c8e6c9;
   color: #2e7d32;
 }
+
 .bar input {
   flex: 1;
   padding: 10px 16px;

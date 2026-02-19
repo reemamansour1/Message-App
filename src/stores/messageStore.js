@@ -19,10 +19,15 @@ export const useMessageStore = defineStore('messageStore', () => {
   }
 
   function getUsers() {
-    return [
-      { username: 'sally', firstName: 'Sally', lastName: 'Mansour' },
-      { username: 'jay', firstName: 'Jay', lastName: 'Simpson' },
-    ]
+    const seen = []
+    return messages
+
+      .filter((m) => {
+        if (seen.includes(m.username)) return false
+        seen.push(m.username)
+        return true
+      })
+      .map((m) => ({ username: m.username, firstName: m.firstName, lastName: m.lastName }))
   }
 
   return { messages, addMessage, redactMessage, unredactMessage, getUsers }

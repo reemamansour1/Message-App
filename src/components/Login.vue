@@ -1,11 +1,10 @@
 <script setup>
-import { computed } from 'vue'
 import { useMessageStore } from '@/stores/messageStore.js'
 
 const emit = defineEmits(['logged-in'])
 const store = useMessageStore()
 
-const users = computed(() => store.getUsers())
+const users = store.getUsers()
 
 function login(user) {
   localStorage.setItem('username', user.username)
@@ -34,6 +33,7 @@ function login(user) {
 <style scoped>
 .login-container {
   min-height: 100vh;
+  flex-direction: column;
   display: flex;
   align-items: center;
   justify-content: center;
